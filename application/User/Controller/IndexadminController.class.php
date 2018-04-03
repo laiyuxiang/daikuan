@@ -70,4 +70,46 @@ class IndexadminController extends AdminbaseController {
     		$this->error('数据传入失败！');
     	}
     }
+	
+	/** 
+         * 导出Stamp的数据 
+         */  
+        public function export(){//导出Excel  
+		$ids = $_GET['ids'];
+			if(!$ids){
+				return falase;
+			}
+            //数据库中的数据表  
+            $xlsName  = "用户数据导出".date('Y-m-d H:I:S',time());
+
+            $xlsCell  = array(  
+                array('id','编号'),  
+                array('mobile','手机号'),
+                array('user_nicename','姓名'),
+                array('user_email','邮箱'),
+
+            );  
+            //$data['is_deleted'] = 0;  
+            /* $xlsModel = M('Stamp');  
+                //导出所有的内容  
+                $xlsData  = $xlsModel->where($data)  
+                    ->Field('id,stamp_title,stamp_uuid,stamp_src,  
+                    art_name,stamp_type,stamp_describe,stamp_spec,  
+                    stamp_material,stamp_age')  
+                    //->order('id desc')  
+                    ->select();   */
+
+			$user = M('Users');
+			if($ids=='all'){
+				$xlsData = $user->select();
+			}else{
+				$xlsData = $user->where("id in ({$ids})")->select();
+			}
+
+
+            /* 调用导出方法 */  
+            exportExcel($xlsName,$xlsCell,$xlsData);
+      
+        }
+		
 }

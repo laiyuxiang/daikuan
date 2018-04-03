@@ -1828,6 +1828,57 @@ function sp_check_verify_code($verifycode=''){
 	return $verify->check($verifycode, "");
 }
 
+function send_message($mobile,$code='1234'){
+	//初始化必填
+//填写在开发者控制台首页上的Account Sid
+	$options['accountsid']=C('SID');
+//填写在开发者控制台首页上的Auth Token
+	$options['token']=C('TOKEN');
+//初始化 $options必填
+	$ucpass = new \Think\Ucpaas($options);
+
+	$appid = C('APPID');	//应用的ID，可在开发者控制台内的短信产品下查看
+	$templateid = C('TEMPLATEID');    //可在后台短信产品→选择接入的应用→短信模板-模板ID，查看该模板ID
+	$param = $code; //多个参数使用英文逗号隔开（如：param=“a,b,c”），如为参数则留空
+	$mobile = $mobile;
+	$uid = "";
+
+//70字内（含70字）计一条，超过70字，按67字/条计费，超过长度短信平台将会自动分割为多条发送。分割后的多条短信将按照具体占用条数计费。
+
+	$result =  json_decode($ucpass->SendSms($appid,$templateid,$param,$mobile,$uid));
+
+	if($result->code  == "000000"){
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function ereturn($message,$status=0){
+	$return = array();
+	$return['status'] = $status;
+	$return['message'] = $message;
+	//print_r($return);die;
+	echo json_encode($return);
+	die;
+}
+function sreturn($message,$info=array(),$status=1){
+	$return = array();
+	$return['status'] = $status ;
+	$return['message'] = $message;
+	$return['info'] = $info;
+	//print_r($return);die;
+	echo json_encode($return);
+	die;
+}
+function settoken(){
+
+}
+
+function gettoken(){
+
+}
+
 /**
  * 手机验证码检查，验证完后销毁验证码增加安全性 ,<br>返回true验证码正确，false验证码错误
  * @return boolean <br>true：手机验证码正确，false：手机验证码错误
@@ -2162,3 +2213,52 @@ function sp_mobile_code_log($mobile,$code,$expire_time){
     
     return $result;
 }
+ /** 
+ *  导出数据库中数据表的数据 
+ * @param $expTitle 名称 
+ * @param $expCellName 参数 
+ * @param $expTableData 内容 
+ * @throws \PHPExcel_Exception 
+ * @throws \PHPExcel_Reader_Exception 
+*/  
+function exportExcel($expTitle,$expCellName,$expTableData){  
+      
+            $xlsTitle = iconv('utf-8', 'gb2312', $expTitle);//文件名称  
+            $fileName = date('YmdHis');//or $xlsTitle 文件名称可根据自己情况设定  
+            $cellNum = count($expCellName);  
+            $dataNum = count($expTableData);  
+              
+            vendor("PHPExcel.PHPExcel");  
+      
+            $objPHPExcel = new \PHPExcel();  
+      
+           // $cellName = array('A','B','C','D','E','F','G','H','I','J');  
+              
+            $cellName = array('A','B','C','D','E','F','G','H','I','J',  
+                            'K','L','M','N','O','P','Q','R','S','T','U',  
+                            'V','W','X','Y','Z','AA','AB','AC','AD','AE',  
+                            'AF','AG','AH','AI','AJ','AK','AL','AM','AN',  
+                            'AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ');  
+              
+            $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);  
+    //        $objPHPExcel->getActiveSheet(0)->mergeCells('A1:'.$cellName[$cellNum-1].'1');//合并单元格  
+    //         $objPHPExcel->setActiveSheetIndex(0)->setCellValue('A1', $expTitle.'  Export time:'.date('Y-m-d H:i:s'));  
+             
+           //处理表数据  
+            for($i=0;$i<$cellNum;$i++){  
+                $objPHPExcel->setActiveSheetIndex(0)->setCellValue($cellName[$i].'1', $expCellName[$i][1]);  
+            }  
+            // Miscellaneous glyphs, UTF-8  
+            for($i=0;$i<$dataNum;$i++){  
+                for($j=0;$j<$cellNum;$j++){  
+                    $objPHPExcel->getActiveSheet(0)->setCellValue($cellName[$j].($i+2), $expTableData[$i][$expCellName[$j][0]]);  
+                }  
+            }  
+            header('pragma:public');  
+            header('Content-type:application/vnd.ms-excel;charset=utf-8;name="'.$xlsTitle.'.xls"');  
+            header("Content-Disposition:attachment;filename=$fileName.xls");//attachment新窗口打印inline本窗口打印  
+            $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');//Excel5为xls格式，excel2007为xlsx格式  
+            $objWriter->save('php://output');     
+            exit;  
+        }
+

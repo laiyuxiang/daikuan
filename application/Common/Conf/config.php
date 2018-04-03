@@ -93,7 +93,12 @@ $configs= array(
         	'__UPLOAD__' => __ROOT__.'/data/upload/',
         	'__STATICS__' => __ROOT__.'/statics/',
             '__WEB_ROOT__'=>__ROOT__
-        )
+        ),
+		''=>'',
+		'SID'=>'5edf150ef321af3e16ad8b5f638cda6f',
+		'TOKEN'=>'5c46a5e2679fdff02d7ec6c7b471d67f',
+		'APPID'=>'122121c1e40e4fe0b2f8e50a18d3c7fb',
+		'TEMPLATEID'=>'302110',
 );
 
 return  array_merge($configs,$db,$runtime_config);
